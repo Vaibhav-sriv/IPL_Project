@@ -1,7 +1,83 @@
+
+document.querySelector(".year-input-button").addEventListener("click", fetchEconomyPerYear);
+
+function fetchEconomyPerYear(){
+  var y=document.querySelector(".year-input").value;
+  if(Number(y)>=2008 || Number(y)<=2019){
+    document.querySelector(".economy-per-year")
+    fetch("./data.json")
+      .then(response => response.json())
+      .then(response =>{
+        document.querySelector("#economy-per-year")
+        visualizeEconomyPerYear(y,response.economyPerYear[y])
+      })
+  }  
+}
+
+function visualizeEconomyPerYear(y, list){
+  var seriesData6=[]
+  for(let i in list){
+    seriesData6.push([list[i].bowler, list[i].economy])
+  }
+  console.log(seriesData6)
+  Highcharts.chart("economy-per-year", {
+          chart: {
+              type: "column"
+          },
+          title: {
+              text: "Top Economical Bowlers in " + y + " season"
+          },
+          subtitle: {
+              text: 'Source: <a href="http://ipl.com">ipl</a>'
+          },
+          xAxis: {
+              type: "category",
+              labels: {
+                  rotation: -45,
+                  style: {
+                      fontSize: "13px",
+                      fontFamily: "Verdana, sans-serif"
+                  }
+              }
+          },
+          yAxis: {
+              min: 0,
+              title: {
+                  text: "Economy"
+              }
+          },
+          legend: {
+              enabled: !1
+          },
+          tooltip: {
+              pointFormat: "Economy: <b>{point.y:0.2f} </b>"
+          },
+          series: [{
+              name: "Bowlers",
+              data: seriesData6,
+              dataLabels: {
+                  enabled: !0,
+                  rotation: 0,
+                  color: "#FFFFFF",
+                  align: "center",
+                  format: "{point.y:.2f}",
+                  y: 25,
+                  style: {
+                      fontSize: "13px",
+                      fontFamily: "Verdana, sans-serif"
+                  }
+              }
+          }]
+      })
+}
+
+
+
+
 function fetchAndVisualizeData() {
   fetch("./data.json")
     .then(r => r.json())
-    .then(visualizeData);
+    .then(visualizeData); 
 }
  
 fetchAndVisualizeData();
@@ -11,7 +87,7 @@ function visualizeData(data) {
   visualizeExtraRunsByTeam(data.extraRunsByTeam);
   visualizeMatchesWonByTeams(data.matchesWonByTeams);
   visualizeEconomicalBowlerResult(data.economicalBowler);
-  visualizeStrikeRateOfBatsman(data.strikeRateOfBatsman)
+  visualizeStrikeRateOfBatsman(data.strikeRateOfBatsman);
   return;
 }
 
@@ -164,7 +240,7 @@ function visualizeEconomicalBowlerResult(economicalBowler){
       type: "column"
     },
     title: {
-      text: "Economy of Bowlers"
+      text: "Economy of Bowlers in 2015"
     },
     subtitle: {
       text:
@@ -195,8 +271,6 @@ function visualizeStrikeRateOfBatsman(strikeRateOfBatsman){
   for(let i of strikeRateOfBatsman){
     seriesData5.push(i)
   }
-
-
 
   Highcharts.chart('strike-Rate', {
     chart: {
