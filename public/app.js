@@ -2,22 +2,21 @@
 document.querySelector(".year-input-button").addEventListener("click", fetchEconomyPerYear);
 
 function fetchEconomyPerYear(){
-  var y=document.querySelector(".year-input").value;
-  if(Number(y)>=2008 || Number(y)<=2019){
-    document.querySelector(".economy-per-year")
-    fetch("./data.json")
-      .then(response => response.json())
-      .then(response =>{
-        document.querySelector("#economy-per-year")
-        visualizeEconomyPerYear(y,response.economyPerYear[y])
+  var season=document.querySelector(".year-input").value;
+
+  if(Number(season)>=2008 || Number(season)<=2019){
+    fetch("/economy?season=" + season)
+      .then(res => res.json())
+      .then(response => {
+        visualizeEconomyPerYear(season, response)
       })
-  }  
+  } 
 }
 
-function visualizeEconomyPerYear(y, list){
+function visualizeEconomyPerYear(season, response){
   var seriesData6=[]
-  for(let i in list){
-    seriesData6.push([list[i].bowler, list[i].economy])
+  for(let team in response){
+    seriesData6.push([response[team].bowler, response[team].economy])
   }
   console.log(seriesData6)
   Highcharts.chart("economy-per-year", {
@@ -25,7 +24,7 @@ function visualizeEconomyPerYear(y, list){
               type: "column"
           },
           title: {
-              text: "Top Economical Bowlers in " + y + " season"
+              text: "Top Economical Bowlers in " + season + " season"
           },
           subtitle: {
               text: 'Source: <a href="http://ipl.com">ipl</a>'

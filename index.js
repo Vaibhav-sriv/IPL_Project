@@ -1,8 +1,15 @@
 const express = require("express");
 const app = express();
-var server = app.listen(3000)
+var server = app.listen(3000, console.log("Server running on port : 3000"))
 app.use(express.static('public'))
 
+var someObject = require("./ecodata.json")
+
+app.get("/economy", (req, res) => {
+  const season = req.query.season;
+  const result = someObject.economyPerYear[season]
+  res.send(result)
+})
 
 const fs = require("fs");
 const csv = require("csvtojson");
@@ -15,6 +22,7 @@ const economyPerYear = require("./ipl/economyPerYear")
 const MATCHES_FILE_PATH = "./csv_data/matches.csv";
 const DELIVERIES_FILE_PATH = "./csv_data/deliveries.csv";
 const JSON_OUTPUT_FILE_PATH = "./public/data.json";
+const ECONOMY_OUTPUT_FILE_PATH = "./ecodata.json";
 
 function main() {
   csv()
@@ -28,21 +36,19 @@ function main() {
         let extraRunResult = extraRunsByTeam(matches, deliveries);
         let economicalBowlerResult = economicalBowler(matches, deliveries);
         let strikeRateOfBatsmanResult = strikeRateOfBatsman(matches, deliveries);
-        let economyPerYearResult = economyPerYear(matches, deliveries);
       
-        saveData(result, matchWonResult, extraRunResult, economicalBowlerResult, strikeRateOfBatsmanResult, economyPerYearResult);
+        saveData(result, matchWonResult, extraRunResult, economicalBowlerResult, strikeRateOfBatsmanResult);
       });
     });
 }
 
-function saveData(result, matchWonResult, extraRunResult, economicalBowlerResult, strikeRateOfBatsmanResult,economyPerYearResult) {
+function saveData(result, matchWonResult, extraRunResult, economicalBowlerResult, strikeRateOfBatsmanResult) {
   const jsonData = {
     matchesPlayedPerYear: result,
     matchesWonByTeams : matchWonResult,
     extraRunsByTeam : extraRunResult,
     economicalBowler : economicalBowlerResult,
-    strikeRateOfBatsman : strikeRateOfBatsmanResult,
-    economyPerYear : economyPerYearResult
+    strikeRateOfBatsman : strikeRateOfBatsmanResult
   };
   const jsonString = JSON.stringify(jsonData);
   fs.writeFile(JSON_OUTPUT_FILE_PATH, jsonString, "utf8", err => {
@@ -52,4 +58,33 @@ function saveData(result, matchWonResult, extraRunResult, economicalBowlerResult
   });
 }
 
+function main2(){
+  csv()
+  .fromFile(MATCHES_FILE_PATH)
+  .then((matches)=>{
+    csv()
+    .fromFile(DELIVERIES_FILE_PATH)
+    .then((deliveries)=>{
+      let economyPerYearResult = economyPerYear(matches, deliveries);
+      saveData2(economyPerYearResult)    
+    })
+  })
+}
+
+function saveData2(economyPerYearResult){
+  const jsonData = {
+    economyPerYear : economyPerYearResult
+  };
+  const jsonString = JSON.stringify(jsonData);
+  fs.writeFile(ECONOMY_OUTPUT_FILE_PATH, jsonString, "utf8", err2 => {
+    if(err2) {
+      console.log(err2);
+    }
+  });
+}
+
 main();
+main2();
+
+
+
